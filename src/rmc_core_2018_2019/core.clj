@@ -1,12 +1,9 @@
 (ns rmc-core-2018-2019.core
   (:gen-class)
-  (:import (java.net ServerSocket)))
+  (:require aleph.tcp))
 
-(def tcp-server (agent (ServerSocket. 2401)))
-
-(defn tcp-handler [])
+(defn handle-incoming [message]
+  (println message))
 
 (defn -main [& args]
-  (do
-    (send-off tcp-server (fn [server]))
-    ()))
+  (aleph.tcp/start-server handle-incoming {:port 2401}))
