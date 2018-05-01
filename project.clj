@@ -5,8 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [venantius/pyro "0.1.2"]
-                 [aleph "0.4.4"]
-                 [clj-serial "2.0.4-SNAPSHOT"]]
+                 [aleph "0.4.4"]]
   :main ^:skip-aot rmc-core-2018-2019.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
