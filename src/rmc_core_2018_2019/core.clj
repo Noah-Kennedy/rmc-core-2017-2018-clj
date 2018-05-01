@@ -31,7 +31,7 @@
   (let [tokens (string/split message (Pattern/compile " "))
         command (first tokens)
         args (rest tokens)]
-    ((lookup-command-handler command) args)))
+    (trampoline (lookup-command-handler command) args)))
 
 (defn print-incoming [message]
   (println message))
