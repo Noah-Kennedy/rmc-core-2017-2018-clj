@@ -1,16 +1,24 @@
 (ns rmc-core-2018-2019.core
   (:gen-class)
-  (:require aleph.tcp))
+  (:require aleph.tcp
+            [clojure.string :as string])
+  (:import (java.util.regex Pattern)))
 
 (declare arduino-serial-agent)
 
-(defn send-to-arduino [message])
+;TODO implement
+(defn send-to-arduino [message]
+  (println (str "Sending '" message "' to Arduino.")))
 
 (def mode (atom :manual))
 
 (defmacro direct-send [command]
-  `(fn [~'message]
-     (send-to-arduino (str ~command ~'message))))
+  `(fn [~'body]
+     (send-to-arduino
+       (string/join
+         " "
+         (flatten
+           (list ~'command ~'body))))))
 
 (defn lookup-command-handler [command]
   (get {"drv"  (direct-send command)
@@ -20,11 +28,14 @@
        command))
 
 (defn handle-incoming [message]
-  ())
+  (let [tokens (string/split message (Pattern/compile " "))
+        command (first tokens)
+        args (rest tokens)]
+    ((lookup-command-handler command) args)))
 
 (defn print-incoming [message]
   (println message))
 
-(defn -main [& args]
+(defn -main []
   (aleph.tcp/start-server handle-incoming {:port 2401}))
 
