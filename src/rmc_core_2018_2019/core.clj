@@ -1,41 +1,60 @@
 (ns rmc-core-2018-2019.core
   (:gen-class)
   (:require aleph.tcp
-            [clojure.string :as string])
+            [clojure.string :as string]
+            [manifold.stream :as s]
+            [eastwood.lint :as e]
+            pyro.printer)
   (:import (java.util.regex Pattern)))
+
+(pyro.printer/swap-stacktrace-engine!)
+(set! *warn-on-reflection* true)
 
 (declare arduino-serial-agent)
 
-;TODO implement
-(defn send-to-arduino [message]
-  (println (str "Sending '" message "' to Arduino.")))
-
 (def mode (atom :manual))
 
-(defmacro direct-send [command]
+;TODO implement
+(defn send-to-arduino [^String message]
+  (println (str "Sending '" message "' to Arduino.")))
+
+(defmacro direct-send [^String command]
   `(fn [~'body]
      (send-to-arduino
-       (string/join
-         " "
-         (flatten
-           (list ~'command ~'body))))))
+       (string/replace
+         (string/join
+           " "
+           (flatten
+             (list ~'command ~'body)))
+         "\n"
+         ""))))
 
-(defn lookup-command-handler [command]
+(defn lookup-command-handler [^String command]
   (get {"drv"  (direct-send command)
         "intk" (direct-send command)
         "auto" (fn [] (swap! mode :auto))
         "man"  (fn [] (swap! mode :manual))}
        command))
 
-(defn handle-incoming [message]
+(defn accept-message [^String message]
   (let [tokens (string/split message (Pattern/compile " "))
-        command (first tokens)
+        ^String command (first tokens)
         args (rest tokens)]
-    (trampoline (lookup-command-handler command) args)))
+    ((lookup-command-handler command) args)))
 
-(defn print-incoming [message]
-  (println message))
+(defn handle-incoming [stream _]
+  (s/consume (fn [bytes]
+               (time
+                 (accept-message
+                   (byte-streams/convert bytes String))))
+             stream))
 
 (defn -main []
   (aleph.tcp/start-server handle-incoming {:port 2401}))
 
+(defn run-eastwood
+  "Run eastwood tests. This will use our already-written tests to check for bad code."
+  []
+  (do
+    (e/eastwood {:source-paths ["src"] :test-paths ["test"]})
+    (e/lint {:source-paths ["src"] :test-paths ["test"]})))

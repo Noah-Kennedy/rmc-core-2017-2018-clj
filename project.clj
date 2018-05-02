@@ -8,4 +8,5 @@
                  [aleph "0.4.4"]]
   :main ^:skip-aot rmc-core-2018-2019.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}
+             :dev {:dependencies [[jonase/eastwood "0.2.5" :exclusions [org.clojure/clojure]]]}})
