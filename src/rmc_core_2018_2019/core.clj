@@ -5,35 +5,35 @@
             [manifold.stream :as s]
             [eastwood.lint :as e]
             pyro.printer)
-  (:import (java.util.regex Pattern)))
+  (:import (java.util.regex Pattern)
+           (clojure.lang Symbol)))
 
 (pyro.printer/swap-stacktrace-engine!)
 (set! *warn-on-reflection* true)
-
-(declare arduino-serial-agent)
-
-(def mode (atom :manual))
 
 ;TODO implement
 (defn send-to-arduino [^String message]
   (println (str "Sending '" message "' to Arduino.")))
 
-(defmacro direct-send [^String command]
-  `(fn [~'body]
-     (send-to-arduino
-       (string/replace
-         (string/join
-           " "
-           (flatten
-             (list ~'command ~'body)))
-         "\n"
-         ""))))
+(defmacro defpass [name function]
+  `(defn ~name [^String ~'command]
+     (fn [~'body]
+       (~function
+         (string/replace
+           (string/join
+             " "
+             (flatten
+               (list ~'command ~'body)))
+           "\n"
+           "")))))
+
+(defpass direct-send send-to-arduino)
+
+(defpass direct-return (fn [message] message))
 
 (defn lookup-command-handler [^String command]
   (get {"drv"  (direct-send command)
-        "intk" (direct-send command)
-        "auto" (fn [] (swap! mode :auto))
-        "man"  (fn [] (swap! mode :manual))}
+        "test" (direct-return command)}
        command))
 
 (defn accept-message [^String message]
@@ -55,6 +55,9 @@
 (defn run-eastwood
   "Run eastwood tests. This will use our already-written tests to check for bad code."
   []
-  (do
-    (e/eastwood {:source-paths ["src"] :test-paths ["test"]})
-    (e/lint {:source-paths ["src"] :test-paths ["test"]})))
+  (e/eastwood {:source-paths ["src"] :test-paths ["test"]}))
+
+(defn run-lint
+  "Run lint tests. This will use our already-written tests to check for bad code."
+  []
+  (e/lint {:source-paths ["src"] :test-paths ["test"]}))

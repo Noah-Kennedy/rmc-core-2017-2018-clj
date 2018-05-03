@@ -2,6 +2,9 @@
   (:require [clojure.test :refer :all]
             [rmc-core-2018-2019.core :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(deftest accept-message-test
+  (testing "Direct return"
+    (is (= (accept-message "test 1") "test 1"))
+    (is (= (accept-message "test 2") "test 2"))
+    (is (= (accept-message "test 3") "test 3"))
+    (is (= (accept-message "test") "test"))))
