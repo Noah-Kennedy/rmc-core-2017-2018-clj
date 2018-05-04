@@ -13,7 +13,7 @@
 (pyro.printer/swap-stacktrace-engine!)
 (set! *warn-on-reflection* true)
 
-(def arduino (SerialPort.))
+(declare arduino)
 
 ;TODO test
 (defn send-to-arduino [^String message]
@@ -58,6 +58,7 @@
 
 (defn -main []
   (do
+    (def arduino (SerialPort.))
     (aleph.tcp/start-server handle-new-connection {:port 2401})))
 
 
