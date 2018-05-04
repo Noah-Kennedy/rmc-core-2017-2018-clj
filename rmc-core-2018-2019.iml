@@ -19,11 +19,13 @@
     <orderEntry type="library" name="Leiningen: clj-stacktrace:0.2.8" level="project" />
     <orderEntry type="library" name="Leiningen: clj-tuple:0.2.2" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-complete:0.2.4" level="project" />
+    <orderEntry type="library" name="Leiningen: com.github.purejavacomm/purejavacomm:1.0.2.RELEASE" level="project" />
     <orderEntry type="library" name="Leiningen: instaparse:1.4.1" level="project" />
     <orderEntry type="library" name="Leiningen: io.aleph/dirigiste:0.1.5" level="project" />
     <orderEntry type="library" name="Leiningen: io.netty/netty-all:4.1.11.Final" level="project" />
     <orderEntry type="library" name="Leiningen: jonase/eastwood:0.2.5" level="project" />
     <orderEntry type="library" name="Leiningen: manifold:0.1.6" level="project" />
+    <orderEntry type="library" name="Leiningen: net.java.dev.jna/jna:4.2.2" level="project" />
     <orderEntry type="library" name="Leiningen: org.antlr/antlr4-runtime:4.5.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.antlr/antlr4:4.5.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojars.brenton/google-diff-match-patch:0.1" level="project" />

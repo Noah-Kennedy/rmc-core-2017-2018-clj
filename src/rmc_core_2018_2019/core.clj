@@ -6,14 +6,21 @@
             [eastwood.lint :as e]
             pyro.printer)
   (:import (java.util.regex Pattern)
-           (clojure.lang Symbol)))
+           (purejavacomm SerialPort)
+           (java.io PrintWriter)))
+
 
 (pyro.printer/swap-stacktrace-engine!)
 (set! *warn-on-reflection* true)
 
-;TODO implement
+(def arduino (SerialPort.))
+
+;TODO test
 (defn send-to-arduino [^String message]
-  (println (str "Sending '" message "' to Arduino.")))
+  (-> arduino
+      .getOutputStream
+      (PrintWriter. true)
+      (.println message)))
 
 (defmacro defpass [name function]
   `(defn ~name [^String ~'command]
@@ -36,21 +43,23 @@
         "test" (direct-return command)}
        command))
 
-(defn accept-message [^String message]
+(defn handle-new-message [^String message]
   (let [tokens (string/split message (Pattern/compile " "))
-        ^String command (first tokens)
+        command (first tokens)
         args (rest tokens)]
     ((lookup-command-handler command) args)))
 
-(defn handle-incoming [stream _]
+(defn handle-new-connection [stream _]
   (s/consume (fn [bytes]
-               (time
-                 (accept-message
-                   (byte-streams/convert bytes String))))
+               (handle-new-message
+                 (byte-streams/convert bytes String)))
              stream))
 
+
 (defn -main []
-  (aleph.tcp/start-server handle-incoming {:port 2401}))
+  (do
+    (aleph.tcp/start-server handle-new-connection {:port 2401})))
+
 
 (defn run-eastwood
   "Run eastwood tests. This will use our already-written tests to check for bad code."
