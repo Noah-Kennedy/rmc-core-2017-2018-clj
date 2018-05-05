@@ -15,12 +15,8 @@
 
 (declare arduino)
 
-;TODO test
-(defn send-to-arduino [^String message]
-  (-> arduino
-      .getOutputStream
-      (PrintWriter. true)
-      (.println message)))
+;TODO implement
+(defn send-to-arduino [^String message])
 
 (defmacro defpass [name function]
   `(defn ~name [^String ~'command]

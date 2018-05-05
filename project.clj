@@ -6,7 +6,8 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [venantius/pyro "0.1.2"]
                  [aleph "0.4.4"]
-                 [com.github.purejavacomm/purejavacomm "1.0.2.RELEASE"]]
+                 ; [com.github.purejavacomm/purejavacomm "1.0.2.RELEASE"]
+                 [clj-serial "2.0.4-SNAPSHOT"]]
   :main ^:skip-aot rmc-core-2018-2019.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}
