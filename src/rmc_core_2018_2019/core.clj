@@ -6,17 +6,22 @@
             [eastwood.lint :as e]
             pyro.printer)
   (:import (java.util.regex Pattern)
-           (purejavacomm SerialPort)
-           (java.io PrintWriter)))
+           (purejavacomm CommPortIdentifier CommPort)
+           (java.io PrintWriter OutputStream)))
 
 
 (pyro.printer/swap-stacktrace-engine!)
 (set! *warn-on-reflection* true)
 
+(def ^String arduino-com-port "COM5")
+
 (declare arduino)
 
-;TODO implement
-(defn send-to-arduino [^String message])
+(defn send-to-arduino [^String message]
+  (-> ^CommPort arduino
+      ^OutputStream .getOutputStream
+      (PrintWriter. true)
+      (.println message)))
 
 (defmacro defpass [name function]
   `(defn ~name [^String ~'command]
@@ -54,7 +59,8 @@
 
 (defn -main []
   (do
-    (def arduino (SerialPort.))
+    (def arduino (-> (CommPortIdentifier/getPortIdentifier arduino-com-port)
+                     (.open "Arduino Comms" 2000)))
     (aleph.tcp/start-server handle-new-connection {:port 2401})))
 
 
