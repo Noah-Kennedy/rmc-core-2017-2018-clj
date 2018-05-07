@@ -19,7 +19,7 @@
 
 
 (defn send-to-arduino
-  "Sends a message over the serial interface to the Arduino."
+  "Sends a message over the arduinoserial interface to the Arduino."
   [^String message]
   (-> ^CommPort arduino
       ^OutputStream .getOutputStream
@@ -75,7 +75,7 @@
                           (-> bytes
                               (byte-streams/convert String)
                               handle-arduino-message))
-                        (-> arduino
+                        (-> ^CommPort arduino
                             .getInputStream))
             Thread.
             .start))
@@ -87,6 +87,8 @@
                       stream)
           Thread.
           .start)))
+
+
 
 (defn -main []
   (do
