@@ -54,7 +54,11 @@
   command in vector form."
   [^String command]
   (get {"drv"  (direct-send command)
-        "test" (direct-return command)}
+        "test" (direct-return command)
+        "intk" (direct-send command)
+        "dmp"  (direct-send command)
+        "kill" (direct-send command)
+        "mt"   (direct-send command)}
        command))
 
 (defn handle-new-message
