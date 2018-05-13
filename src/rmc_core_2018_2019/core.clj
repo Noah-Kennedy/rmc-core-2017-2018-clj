@@ -74,23 +74,19 @@
   [stream _]
   (do (letfn [(handle-arduino-message [message]
                 (s/put! stream message))]
-        (-> ^Runnable (s/consume
-                        (fn [bytes]
-                          (-> bytes
-                              (byte-streams/convert String)
-                              handle-arduino-message))
-                        (-> ^CommPort arduino
-                            .getInputStream))
-            Thread.
-            .start))
-      (-> ^Runnable (s/consume
-                      (fn [bytes]
-                        (-> bytes
-                            (byte-streams/convert String)
-                            handle-new-message))
-                      stream)
-          Thread.
-          .start)))
+        (s/consume
+          (fn [bytes]
+            (-> bytes
+                (byte-streams/convert String)
+                handle-arduino-message))
+          (-> ^CommPort arduino
+              .getInputStream)))
+      (s/consume
+        (fn [bytes]
+          (-> bytes
+              (byte-streams/convert String)
+              handle-new-message))
+        stream)))
 
 
 
