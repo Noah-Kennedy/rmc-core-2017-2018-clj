@@ -14,7 +14,7 @@
 (set! *warn-on-reflection* true)
 
 
-(def ^String arduino-com-port "COM5")
+(def ^String arduino-com-port "ttyAMA4")
 (declare arduino)
 
 
