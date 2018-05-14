@@ -13,7 +13,7 @@
 (set! *warn-on-reflection* true)
 
 
-(def ^String arduino-com-port "ttyAMA4")
+(def ^String arduino-com-port "ttyACM0")
 (declare arduino)
 
 
