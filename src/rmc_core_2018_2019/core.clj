@@ -3,7 +3,6 @@
   (:require aleph.tcp
             [clojure.string :as string]
             [manifold.stream :as s]
-            [eastwood.lint :as e]
             pyro.printer)
   (:import (java.util.regex Pattern)
            (purejavacomm CommPortIdentifier CommPort)
@@ -95,14 +94,3 @@
     (def arduino (-> (CommPortIdentifier/getPortIdentifier arduino-com-port)
                      (.open "Arduino Comms" 2000)))
     (aleph.tcp/start-server handle-new-connection {:port 2401})))
-
-
-(defn run-eastwood
-  "Run eastwood tests. This will use our already-written tests to check for bad code."
-  []
-  (e/eastwood {:source-paths ["src"] :test-paths ["test"]}))
-
-(defn run-lint
-  "Run lint tests. This will use our already-written tests to check for bad code."
-  []
-  (e/lint {:source-paths ["src"] :test-paths ["test"]}))
