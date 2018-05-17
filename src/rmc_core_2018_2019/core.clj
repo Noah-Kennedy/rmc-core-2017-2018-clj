@@ -6,23 +6,39 @@
             pyro.printer)
   (:import (java.util.regex Pattern)
            (purejavacomm CommPortIdentifier CommPort)
-           (java.io PrintWriter OutputStream)))
+           (java.util Scanner)
+           (java.io PrintWriter)))
 
 
 (pyro.printer/swap-stacktrace-engine!)
 (set! *warn-on-reflection* true)
 
 
-(def ^String arduino-com-port "ttyAMA0")
-(declare arduino)
-(declare arduino-printer)
+(def ^String arduino-com-port "ttyACM0")
 
+(declare arduino-printer)
+(declare arduino-reader)
 
 (defn send-to-arduino
   "Sends a message over the Arduino serial interface to the Arduino."
   [^String message]
-  (-> arduino-printer
-      (.println message)))
+  (send-off arduino-printer
+            (fn [^PrintWriter printer]
+              (do
+                (.println printer message)
+                printer))))
+
+(defn print-from-arduino
+  "Prints out the most recently sent message from the arduino.
+  Used mainly for test code."
+  []
+  (send-off arduino-reader
+            (fn [^Scanner reader]
+              do
+              (-> reader
+                  .nextLine
+                  println)
+              reader)))
 
 (defmacro defpass
   "Defines a passthrough function which will take in the
@@ -77,12 +93,21 @@
             handle-new-message))
       stream)))
 
-(defn -main []
+(defn -main
+  "Starts the TCP server and creates Arduino
+  reader (Scanner) and printer (PrintWriter) agents."
+  []
   (do
-    (def arduino (-> (CommPortIdentifier/getPortIdentifier arduino-com-port)
-                     (.open "Arduino Comms" 2000)))
-    (def arduino-printer
-      (-> ^CommPort arduino
-          .getOutputStream
-          (PrintWriter. true)))
+    (let [arduino (-> (CommPortIdentifier/getPortIdentifier arduino-com-port)
+                      (.open "Arduino Comms" 2000))]
+      (def arduino-printer
+        (agent
+          (-> ^CommPort arduino
+              .getOutputStream
+              (PrintWriter. true))))
+      (def arduino-reader
+        (agent
+          (-> ^CommPort arduino
+              .getInputStream
+              Scanner.))))
     (aleph.tcp/start-server handle-new-connection {:port 2401})))
