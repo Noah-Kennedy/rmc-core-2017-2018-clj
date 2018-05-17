@@ -13,18 +13,16 @@
 (set! *warn-on-reflection* true)
 
 
-(def ^String arduino-com-port "ttyACM0")
+(def ^String arduino-com-port "ttyAMA0")
 (declare arduino)
+(declare arduino-printer)
 
 
 (defn send-to-arduino
-  "Sends a message over the arduinoserial interface to the Arduino."
+  "Sends a message over the Arduino serial interface to the Arduino."
   [^String message]
-  (-> ^CommPort arduino
-      ^OutputStream .getOutputStream
-      (PrintWriter. true)
+  (-> arduino-printer
       (.println message)))
-
 
 (defmacro defpass
   "Defines a passthrough function which will take in the
@@ -71,26 +69,20 @@
 (defn handle-new-connection
   "Handles a new connection request sent by a TCP client."
   [stream _]
-  (do (letfn [(handle-arduino-message [message]
-                (s/put! stream message))]
-        (s/consume
-          (fn [bytes]
-            (-> bytes
-                (byte-streams/convert String)
-                handle-arduino-message))
-          (-> ^CommPort arduino
-              .getInputStream)))
-      (s/consume
-        (fn [bytes]
-          (-> bytes
-              (byte-streams/convert String)
-              handle-new-message))
-        stream)))
-
-
+  (do
+    (s/consume
+      (fn [bytes]
+        (-> bytes
+            (byte-streams/convert String)
+            handle-new-message))
+      stream)))
 
 (defn -main []
   (do
     (def arduino (-> (CommPortIdentifier/getPortIdentifier arduino-com-port)
                      (.open "Arduino Comms" 2000)))
+    (def arduino-printer
+      (-> ^CommPort arduino
+          .getOutputStream
+          (PrintWriter. true)))
     (aleph.tcp/start-server handle-new-connection {:port 2401})))
