@@ -24,9 +24,8 @@
   [^String message]
   (send-off arduino-printer
             (fn [^PrintWriter printer]
-              (do
-                (.println printer message)
-                printer))))
+              (do (.println printer message)
+                  printer))))
 
 (defn print-from-arduino
   "Prints out the most recently sent message from the arduino.
@@ -34,11 +33,11 @@
   []
   (send-off arduino-reader
             (fn [^Scanner reader]
-              do
-              (-> reader
-                  .nextLine
-                  println)
-              reader)))
+              (do
+                (-> reader
+                    .nextLine
+                    println)
+                reader))))
 
 (defmacro defpass
   "Defines a passthrough function which will take in the
