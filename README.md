@@ -54,7 +54,7 @@ extensive testing has been performed on the entire robot system.
 
 Navigate into the project directory and call
 
-    lein uberjar [args]
+    lein uberjar
     
 #### Compile and run once
 
