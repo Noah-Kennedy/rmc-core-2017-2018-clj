@@ -1,10 +1,16 @@
 # rmc-core-2018-2019
 
 This repository contains the software for the Core Networking Module
-used by the MSOE NASA Robotic mining competition team.
-This software handles the connection between the driver station and the robot.
-It also contains the core robot logic, including how incoming commands
+used by the MSOE NASA Robotic mining competition team during the 2018 Competition.
+A future release of this software will also be used during the 2019 Competition.
+
+This software handles the connection between the driver station and the robot, as well as
+the core robot logic, including how incoming commands
 from the driver station are to be responded to.
+
+This software was developed using the Clojure programming language.
+This decision was made due to the excellent tools Clojure provides for concurrent and asynchronous designs.
+
 This software is designed to be run on a Raspberry PI, but it may work on other UNIX-based systems.
 This software runs on port 2401.
 
@@ -97,17 +103,8 @@ and following the prompts given.
 
 Clone the project using IntelliJ's built in VCS.
 
-## Examples
-
-...
-
-### Bugs
-
-...
-
 ## License
 
-Copyright © 2018 FIXME
+Copyright © 2018
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the Eclipse Public License.
