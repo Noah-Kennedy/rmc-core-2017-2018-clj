@@ -19,13 +19,16 @@
 (declare arduino-printer)
 (declare arduino-reader)
 
+(def is-alive (atom false))
+
 (defn send-to-arduino
   "Sends a message over the Arduino serial interface to the Arduino."
   [^String message]
-  (send-off arduino-printer
-            (fn [^PrintWriter printer]
-              (do (.println printer message)
-                  printer))))
+  (when @is-alive
+    (send-off arduino-printer
+              (fn [^PrintWriter printer]
+                (do (.println printer message)
+                    printer)))))
 
 (defn print-from-arduino
   "Prints out the most recently sent message from the arduino.
@@ -40,7 +43,7 @@
                 reader))))
 
 (defmacro defpass
-  "Defines a passthrough function which will take in the
+  "Defines a pass-through function which will take in the
   entire command as an argument. This is good for
   situations in which you will be relaying the
   entire command forwards to another device."
@@ -56,21 +59,25 @@
            "\n"
            "")))))
 
-(defpass direct-send send-to-arduino)
+(defpass sendoff-to-arduino send-to-arduino)
 
-(defpass direct-return (fn [message] message))
+(defpass direct-return (fn [message]
+                         (if @is-alive
+                           message
+                           :dead)))
 
 (defn lookup-command-handler
   "Looks up the command handler in a map using the command provided.
   Returns back a command which will take in the arguments of the
   command in vector form."
   [^String command]
-  (get {"drv"  (direct-send command)
+  (get {"drv"  (sendoff-to-arduino command)
         "test" (direct-return command)
-        "intk" (direct-send command)
-        "dmp"  (direct-send command)
-        "kill" (direct-send command)
-        "mt"   (direct-send command)}
+        "intk" (sendoff-to-arduino command)
+        "dmp"  (sendoff-to-arduino command)
+        "dsbl" (fn [_] (swap! is-alive (fn [_] false)))
+        "enbl" (fn [_] (swap! is-alive (fn [_] true)))
+        "mt"   (sendoff-to-arduino command)}
        command))
 
 (defn handle-new-message
@@ -99,6 +106,7 @@
   (do
     (let [arduino (-> (CommPortIdentifier/getPortIdentifier arduino-com-port)
                       (.open "Arduino Comms" 2000))]
+      (swap! is-alive true)
       (def arduino-printer
         (agent
           (-> ^CommPort arduino
