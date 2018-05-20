@@ -9,17 +9,25 @@
            (java.util Scanner)
            (java.io PrintWriter)))
 
-
-(pyro.printer/swap-stacktrace-engine!)
 (set! *warn-on-reflection* true)
+(pyro.printer/swap-stacktrace-engine!)
 
 
-(def ^String arduino-com-port "ttyACM0")
+(def ^String arduino-com-port "COM6")
 
 (declare arduino-printer)
 (declare arduino-reader)
 
 (def is-alive (atom false))
+(def client-streams (ref []))
+
+(defn send-to-clients [message]
+  (dosync
+    (ensure client-streams)
+    (pmap (fn [stream-agent]
+            (send-off stream-agent
+                      (fn [stream]
+                        (do (s/put! stream message))))))))
 
 (defn send-to-arduino
   "Sends a message over the Arduino serial interface to the Arduino."
@@ -61,10 +69,23 @@
 
 (defpass sendoff-to-arduino send-to-arduino)
 
+(defpass pass-print println)
+
 (defpass direct-return (fn [message]
                          (if @is-alive
                            message
                            :dead)))
+
+(defn lookup-report-handler
+  [^String report]
+  (get {"test" (pass-print report)}
+       report))
+
+(defn handle-new-report [^String report]
+  (let [tokens (string/split report (Pattern/compile " "))
+        command (first tokens)
+        args (rest tokens)]
+    ((lookup-report-handler command) args)))
 
 (defn lookup-command-handler
   "Looks up the command handler in a map using the command provided.
@@ -104,15 +125,22 @@
   []
   (let [arduino (-> (CommPortIdentifier/getPortIdentifier arduino-com-port)
                     (.open "Arduino Comms" 2000))]
-    (swap! is-alive true)
+    (swap! is-alive (fn [_] true))
     (def arduino-printer
-      (agent
-        (-> ^CommPort arduino
-            .getOutputStream
-            (PrintWriter. true))))
+      (-> ^CommPort arduino
+          .getOutputStream
+          (PrintWriter. true)
+          agent))
     (def arduino-reader
-      (agent
-        (-> ^CommPort arduino
-            .getInputStream
-            Scanner.))))
+      (-> ^CommPort arduino
+          .getInputStream
+          Scanner.
+          agent))
+    (send arduino-reader (fn [^Scanner reader]
+                           (loop []
+                             (when (.hasNextLine reader)
+                               (-> reader
+                                   .nextLine
+                                   handle-new-report))
+                             (recur)))))
   (aleph.tcp/start-server handle-new-connection {:port 2401}))
