@@ -91,30 +91,28 @@
 (defn handle-new-connection
   "Handles a new connection request sent by a TCP client."
   [stream _]
-  (do
-    (s/consume
-      (fn [bytes]
-        (-> bytes
-            (byte-streams/convert String)
-            handle-new-message))
-      stream)))
+  (s/consume
+    (fn [bytes]
+      (-> bytes
+          (byte-streams/convert String)
+          handle-new-message))
+    stream))
 
 (defn -main
   "Starts the TCP server and creates Arduino
   reader (Scanner) and printer (PrintWriter) agents."
   []
-  (do
-    (let [arduino (-> (CommPortIdentifier/getPortIdentifier arduino-com-port)
-                      (.open "Arduino Comms" 2000))]
-      (swap! is-alive true)
-      (def arduino-printer
-        (agent
-          (-> ^CommPort arduino
-              .getOutputStream
-              (PrintWriter. true))))
-      (def arduino-reader
-        (agent
-          (-> ^CommPort arduino
-              .getInputStream
-              Scanner.))))
-    (aleph.tcp/start-server handle-new-connection {:port 2401})))
+  (let [arduino (-> (CommPortIdentifier/getPortIdentifier arduino-com-port)
+                    (.open "Arduino Comms" 2000))]
+    (swap! is-alive true)
+    (def arduino-printer
+      (agent
+        (-> ^CommPort arduino
+            .getOutputStream
+            (PrintWriter. true))))
+    (def arduino-reader
+      (agent
+        (-> ^CommPort arduino
+            .getInputStream
+            Scanner.))))
+  (aleph.tcp/start-server handle-new-connection {:port 2401}))
