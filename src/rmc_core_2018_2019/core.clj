@@ -27,7 +27,8 @@
     (pmap (fn [stream-agent]
             (send-off stream-agent
                       (fn [stream]
-                        (do (s/put! stream message))))))))
+                        (do (s/put! stream message)))))
+          @client-streams)))
 
 (defn send-to-arduino
   "Sends a message over the Arduino serial interface to the Arduino."
