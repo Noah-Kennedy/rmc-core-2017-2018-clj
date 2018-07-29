@@ -2,13 +2,14 @@
    (:gen-class)
    (:require aleph.tcp
              [manifold.stream :as s]
-             pyro.printer))
+             pyro.printer
+             [clojure.java.io :as io])
+   (:import (java.io PrintWriter)))
 
 (set! *warn-on-reflection* true)
 (pyro.printer/swap-stacktrace-engine!)
 
-(defn bytes->num
-   [data]
+(defn bytes->num [data]
    (reduce bit-or
            (map-indexed
               (fn [i x]
@@ -28,17 +29,39 @@
       [command (first bytes)
        args    (rest bytes)]
       (case command
+         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+         ; 16
+         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
          16 (println args)
-         17 (-> args byte-array String. println)
+
+         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+         ; 17
+         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+         17 (->
+               args
+               byte-array
+               String.
+               println)
+
+         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+         ; 6
+         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+         6 (with-open [logger (io/writer "log.log" :append true)]
+              (.write logger (str args "\n")))
+
+         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
          ;default
+         ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
          (println "Received unknown message"))))
 
 (defn make-connection-handler [messageHandler clientStreams]
    {:pre  [(ifn? messageHandler)
-           (seq? clientStreams)]
+           ;(seq? @clientStreams)
+           ]
     :post [(ifn? %)]}
    (fn [stream _]
-      {:post [(contains? clientStreams stream)]}
+      {:post [;(contains? @clientStreams stream)
+              ]}
       (do
          (dosync
             (alter clientStreams conj stream))
