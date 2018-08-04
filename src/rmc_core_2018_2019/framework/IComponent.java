@@ -1,4 +1,4 @@
-package rmc_core_2018_2019.java.framework;
+package rmc_core_2018_2019.framework;
 
 import clojure.lang.IPersistentMap;
 

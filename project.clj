@@ -1,4 +1,4 @@
-(defproject rmc-core-2018-2019 "0.1.0-SNAPSHOT"
+(defproject rmc-core-2018-2019 "core"
   :description "The MSOE RMC Core Control Module Code"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
