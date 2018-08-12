@@ -13,5 +13,4 @@
 (defn -main []
    (init)
    (let [TCP (net/launch-server!)]
-      (println "running")
       (launch-framework!)))
