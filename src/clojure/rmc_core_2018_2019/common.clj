@@ -8,6 +8,8 @@
 (def ^:const ^Byte PRINT-AS-BYTES-MESSAGE-ID 16)
 (def ^:const ^Byte PRINT-AS-STRING-MESSAGE-ID 17)
 (def ^:const ^Byte LOG-MESSAGE-ID 6)
+(def ^:const ^Byte ECHO-MESSAGE-ID 4)
+(def ^:const ^Byte ECHO-RESPONSE-MESSAGE-ID 5)
 
 (defn log! [fileName message]
    {:pre [(string? fileName)]}

@@ -5,9 +5,27 @@
              [rmc-core-2018-2019.common :refer :all]
              [clojure.core.specs.alpha :as spec]))
 
+(def clientStreams (ref []))
+
+(defprotocol Transmitter
+   (send! [this message]))
+
+(defrecord TCP [server clientStreams]
+   Transmitter
+   (send! [this message]
+      {:pre [(or (bytes? message)
+                 (string? message))
+             (ref? clientStreams)]}
+      (dorun (pmap
+                (fn [stream]
+                   (s/put! stream message))
+                (deref clientStreams)))))
+
+(defn tcp? [x]
+   (instance? TCP x))
+
 (defn- byte-stream->seq [bytes]
-   {:pre  []
-    :post [(seq? %)]}
+   {:post [(seq? %)]}
    (-> bytes
        (byte-streams/to-byte-array)
        (seq)))
@@ -30,6 +48,12 @@
             (bytes->string)
             (println))))
 
+(defn send-echo-response! [tcpServer payload]
+   {:pre [(tcp? tcpServer)
+          (sequential? payload)
+          (every? byte? payload)]}
+   (send! tcpServer (byte-array (cons ECHO-RESPONSE-MESSAGE-ID payload))))
+
 (defn handle-new-message!
    "Handles a new incoming message that was sent by the GUI."
    [bytes]
@@ -41,6 +65,7 @@
          PRINT-AS-BYTES-MESSAGE-ID (print-as-nums! args)
          PRINT-AS-STRING-MESSAGE-ID (print-as-string! args)
          LOG-MESSAGE-ID (log! "netlog.log" bytes)
+         ECHO-MESSAGE-ID (send-echo-response! clientStreams args)
          :else (do (print "Received unknown message: ")
                    (print-as-nums! bytes)))))
 
@@ -56,11 +81,8 @@
          (comp messageHandler byte-stream->seq)
          stream)))
 
-(defrecord TCP [server clientStreams])
-
 (defn launch-server! []
    (let
-      [clientStreams (ref [])
-       handler       (make-connection-handler handle-new-message! clientStreams)
+      [handler       (make-connection-handler handle-new-message! clientStreams)
        server        (aleph.tcp/start-server handler {:port 2401})]
       (->TCP server clientStreams)))
