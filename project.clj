@@ -12,9 +12,11 @@
    :bootclasspath true
    :global-vars {*warn-on-reflection* true
                  *assert*             true}
+   :plugins [[lein-cloverage "1.0.11-SNAPSHOT"]]
    :source-paths ["src/clojure"]
    :java-source-paths ["src/java"]
+   :test-paths ["test"]
    :main ^:skip-aot rmc_core_2018_2019.core
    :target-path "target/%s"
    :profiles {:uberjar {:aot :all}
-              :dev     {:dependencies [[jonase/eastwood "0.2.5" :exclusions [org.clojure/clojure]]]}})
+              :dev     {:dependencies []}})

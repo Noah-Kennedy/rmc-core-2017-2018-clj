@@ -38,12 +38,10 @@
     <orderEntry type="library" name="Leiningen: io.netty/netty-transport-native-epoll:4.1.22.Final" level="project" />
     <orderEntry type="library" name="Leiningen: io.netty/netty-transport-native-unix-common:4.1.22.Final" level="project" />
     <orderEntry type="library" name="Leiningen: io.netty/netty-transport:4.1.22.Final" level="project" />
-    <orderEntry type="library" name="Leiningen: jonase/eastwood:0.2.5" level="project" />
     <orderEntry type="library" name="Leiningen: manifold:0.1.6" level="project" />
     <orderEntry type="library" name="Leiningen: net.java.dev.jna/jna:4.2.2" level="project" />
     <orderEntry type="library" name="Leiningen: org.antlr/antlr4-runtime:4.5.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.antlr/antlr4:4.5.3" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojars.brenton/google-diff-match-patch:0.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.9.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.async:0.4.474" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.cache:0.6.3" level="project" />
