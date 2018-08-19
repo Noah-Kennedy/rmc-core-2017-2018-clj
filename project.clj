@@ -4,7 +4,7 @@
    :license {:name "Eclipse Public License"
              :url  "http://www.eclipse.org/legal/epl-v10.html"}
    :dependencies [[org.clojure/clojure "1.9.0"]
-                  [venantius/pyro "0.1.2"]
+                  ;[venantius/pyro "0.1.2"]
                   [aleph "0.4.5-alpha6"]
                   [com.github.purejavacomm/purejavacomm "1.0.2.RELEASE"]
                   [org.clojure/core.async "0.4.474"]

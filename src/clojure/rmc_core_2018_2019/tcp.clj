@@ -7,8 +7,25 @@
              [clojure.core.specs.alpha :as spec]))
 
 (defrecord TCPServer [tcpClientStreams connectionStatusAtom server]
+   Consumer
+   (consume! [this consumerFn]
+      {:pre [(fn? consume-async!)
+             (ref? tcpClientStreams)]}
+      (dosync (doseq
+                 [client (ensure tcpClientStreams)]
+                 (s/consume consumerFn client))))
+   (consume-async! [this consumerFn]
+      {:pre [(fn? consume-async!)
+             (ref? tcpClientStreams)
+             (seqable? (deref tcpClientStreams))]}
+      (dosync (doseq
+                 [client (ensure tcpClientStreams)]
+                 (s/consume-async consumerFn client))))
    Transmitter
-   Consumer)
+   (transmit! [this message]
+      (dosync (doseq
+                 [client (ensure tcpClientStreams)]
+                 (s/put! client message)))))
 
 (defn tcp-server?
    "Tests x to see if x is an instance of the TCPServer type."
@@ -17,7 +34,8 @@
    (instance? TCPServer x))
 
 (defn create-tcp-server! [port]
-   {:pre [(number? port)]}
+   {:pre  [(number? port)]
+    :post [(tcp-server? %)]}
    (let [clientStreams        (ref [])
          connectionStatusAtom (atom false)
          newConnectionHandler (fn [clientStream]
@@ -25,30 +43,3 @@
          server               (aleph.tcp/start-server newConnectionHandler
                                                       {:port port})]
       (->TCPServer clientStreams connectionStatusAtom server)))
-
-(defn make-message-handler
-   "Makes a new message handler function that uses the supplied
-   `messageValidator` function to validate the message and then handles the message
-   differently based on whether or not it was validated.
-
-   `messageValidator`      := A function that validates the message. This
-                              function should always return a boolean.
-
-   `validMessageHandler`   := A function which handles valid messages. This
-                              function will be called when a call to the
-                              supplied `messageValidator` function returns true.
-
-   `invalidMessageHandler` := A function which handles invalid messages. This
-                              function will be called when a call to the
-                              supplied messageValidator function returns false."
-   [messageValidator
-    validMessageHandler
-    invalidMessageHandler]
-   {:pre  [(fn? validMessageHandler)
-           (fn? messageValidator)
-           (fn? invalidMessageHandler)]
-    :post [(fn? %)]}
-   (fn [newMessage]
-      (if (messageValidator newMessage)
-         (validMessageHandler newMessage)
-         (invalidMessageHandler newMessage))))
