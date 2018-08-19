@@ -12,7 +12,8 @@
    :bootclasspath true
    :global-vars {*warn-on-reflection* true
                  *assert*             true}
-   :plugins [[lein-cloverage "1.0.11-SNAPSHOT"]]
+   :plugins [[lein-cloverage "1.0.11-SNAPSHOT"]
+             [lein-kibit "0.1.6"]]
    :source-paths ["src/clojure"]
    :java-source-paths ["src/java"]
    :test-paths ["test"]
