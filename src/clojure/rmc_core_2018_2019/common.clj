@@ -1,6 +1,6 @@
 (ns rmc-core-2018-2019.common
-   (:require [clojure.java.io :as io])
-   (:import (clojure.lang Ref)))
+   (:require [clojure.tools.logging :as log])
+   (:import (clojure.lang Ref Agent)))
 
 (defn in?
    "true if coll contains elm"
@@ -14,6 +14,10 @@
 (defn ref? [x]
    {:post [(boolean? %)]}
    (instance? Ref x))
+
+(defn agent? [x]
+   {:post [(boolean? %)]}
+   (instance? Agent x))
 
 (defn add-sync! [collection element]
    {:pre  [(ref? collection)

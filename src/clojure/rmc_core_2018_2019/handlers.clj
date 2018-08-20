@@ -1,5 +1,6 @@
 (ns rmc-core-2018-2019.handlers
-   (:require [rmc-core-2018-2019.common :refer :all]))
+   (:require [rmc-core-2018-2019.common :refer :all]
+             [clojure.tools.logging :as log]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Message IDs
@@ -25,3 +26,15 @@
 
 (defmethod handle-tcp false [message]
    (handle-invalid-tcp-message message))
+
+(defmethod handle-valid-tcp-message LOG-MESSAGE-ID [message]
+   (log/info (str "Received new log message: [" message "]")))
+
+(defmethod handle-valid-tcp-message :default [message]
+   (log/info (str "Received unhandled message: [" message "]")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Invalid
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defmethod handle-invalid-tcp-message :default [message]
+   (log/info (str "Received invalid message: [" message "]")))

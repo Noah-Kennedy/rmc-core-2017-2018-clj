@@ -8,7 +8,11 @@
                   [aleph "0.4.5-alpha6"]
                   [com.github.purejavacomm/purejavacomm "1.0.2.RELEASE"]
                   [org.clojure/core.async "0.4.474"]
-                  [org.clojure/core.specs.alpha "0.1.24"]]
+                  [org.clojure/core.specs.alpha "0.1.24"]
+                  [log4j/log4j "1.2.17" :exclusions [javax.mail/mail
+                                                     javax.jms/jms
+                                                     com.sun.jdmk/jmxtools
+                                                     com.sun.jmx/jmxri]]]
    :bootclasspath true
    :global-vars {*warn-on-reflection* true
                  *assert*             true}

@@ -38,6 +38,15 @@
          (is (not (ref? agentObj)))
          (is (not (ref? atomObj)))
          (is (not (ref? obj)))))
+   (testing "agent?"
+      (let [agentObj (agent nil)
+            atomObj  (atom nil)
+            refObj   (ref nil)
+            obj      nil]
+         (is (not (agent? refObj)))
+         (is (agent? agentObj))
+         (is (not (agent? atomObj)))
+         (is (not (agent? obj)))))
    (testing "add-sync!"
       (let [items (ref [])]
          (add-sync! items 5)
