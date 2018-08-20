@@ -16,7 +16,7 @@
          (is (not (tcp-server? stringServer))))))
 
 (deftest test-common
-   (testing "Byte?"
+   (testing "byte?"
       (let [intNum    (int 4)
             byteNum   (byte 4)
             longNum   (long 4)
@@ -28,4 +28,21 @@
          (is (not (byte? longNum)))
          (is (not (byte? shortNum)))
          (is (not (byte? stringNum)))
-         (is (not (byte? charNum))))))
+         (is (not (byte? charNum)))))
+   (testing "ref?"
+      (let [agentObj (agent nil)
+            atomObj  (atom nil)
+            refObj   (ref nil)
+            obj      nil]
+         (is (ref? refObj))
+         (is (not (ref? agentObj)))
+         (is (not (ref? atomObj)))
+         (is (not (ref? obj)))))
+   (testing "add-sync!"
+      (let [items (ref [])]
+         (add-sync! items 5)
+         (is (in? (deref items) 5))
+         (add-sync! items 7)
+         (is (in? (deref items) 7))
+         (is (thrown? Exception (dosync (add-sync! items 9))))
+         (is (not (in? (deref items) 9))))))
