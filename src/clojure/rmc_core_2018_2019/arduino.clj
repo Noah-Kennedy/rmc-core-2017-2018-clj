@@ -3,23 +3,20 @@
              [rmc-core-2018-2019.common :refer :all]
              [clojure.core.async :as async])
    (:import (purejavacomm CommPortIdentifier)
-            (java.io OutputStream)
             (java.util Scanner)))
 
 (defrecord Arduino [reader writer]
    Transmitter
    (transmit! [this message]
-      {:pre [(seqable? message)
-             (every? byte? message)]}
-      (->> message
-           (byte-array)
-          (.write writer)))
+      {:pre [(seqable? message) (every? byte? message)]}
+      (send writer (byte-array message)))
    Consumer
    (consume-async! [this handler]
       {:pre [(fn? handler)]}
       (async/go-loop []
-         (when (.hasNext)
-            (handler (.next reader))))))
+         (when (.hasNext reader)
+            (handler (.next reader)))
+         (recur))))
 
 (defn create-arduino [^String appName
                       ^String port
