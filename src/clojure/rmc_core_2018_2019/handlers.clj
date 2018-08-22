@@ -5,36 +5,67 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Message IDs
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def ^:const ^Byte PRINT-AS-BYTES-MESSAGE-ID 16)
-(def ^:const ^Byte PRINT-AS-STRING-MESSAGE-ID 17)
 (def ^:const ^Byte LOG-MESSAGE-ID 6)
 (def ^:const ^Byte ECHO-MESSAGE-ID 4)
 (def ^:const ^Byte ECHO-RESPONSE-MESSAGE-ID 5)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Message validation
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn is-valid? [message]
    {:pre  [(seqable? message)
            (every? byte? message)]
     :post [(boolean? %)]}
    true)
 
-(defmulti handle-tcp is-valid?)
-(defmulti handle-valid-tcp-message)
-(defmulti handle-invalid-tcp-message)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Multi definitions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defmulti handle-tcp-message! is-valid?)
+(defmulti handle-valid-tcp-message! first)
+(defmulti handle-invalid-tcp-message! first)
 
-(defmethod handle-tcp true [message]
-   (handle-valid-tcp-message message))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Message validation sorting
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defmethod handle-tcp-message! true [message]
+   {:pre [(seqable? message)
+          (every? byte? message)]}
+   (handle-valid-tcp-message! message))
 
-(defmethod handle-tcp false [message]
-   (handle-invalid-tcp-message message))
+(defmethod handle-tcp-message! false [message]
+   {:pre [(seqable? message)
+          (every? byte? message)]}
+   (handle-invalid-tcp-message! message))
 
-(defmethod handle-valid-tcp-message LOG-MESSAGE-ID [message]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Valid message handling
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defmethod handle-valid-tcp-message! LOG-MESSAGE-ID [message]
+   {:pre [(seqable? message)
+          (every? byte? message)]}
    (log/info (str "Received new log message: [" message "]")))
 
-(defmethod handle-valid-tcp-message :default [message]
-   (log/info (str "Received unhandled message: [" message "]")))
+(defmethod handle-valid-tcp-message! :default [message]
+   {:pre [(seqable? message)
+          (every? byte? message)]}
+   (log/warn (str "Received unhandled message: [" message "]")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Invalid
+; Invalid message handling
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defmethod handle-invalid-tcp-message :default [message]
-   (log/info (str "Received invalid message: [" message "]")))
+(defmethod handle-invalid-tcp-message! :default [message]
+   {:pre [(seqable? message)
+          (every? byte? message)]}
+   (log/error (str "Received invalid message: [" message "]")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Message deconstruction
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn handle-new-tcp-packet! [message]
+   {:pre  [(bytes? message)]
+    :post [(seqable? %)
+           (every? byte? %)]}
+   (-> message
+       (vec)
+       (handle-tcp-message!)))
