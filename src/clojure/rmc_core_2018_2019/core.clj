@@ -4,6 +4,8 @@
              [rmc-core-2018-2019.comms :refer :all]
              [rmc-core-2018-2019.common :refer :all]
              [rmc-core-2018-2019.handlers :refer :all]
+             [rmc-core-2018-2019.arduino :refer :all]
+             [rmc-core-2018-2019.state :refer :all]
              [clojure.core.async :as async]
              [clojure.tools.logging :as log]))
 

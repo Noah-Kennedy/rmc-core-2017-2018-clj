@@ -2,6 +2,6 @@
    (:require [rmc-core-2018-2019.arduino :refer :all]))
 
 (def arduinoConnection (create-arduino "RMC Core Arduino Connection"
-                                       "ttyACM0"
+                                       "COM3"
                                        2000))
 

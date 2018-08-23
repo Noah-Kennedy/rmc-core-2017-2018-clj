@@ -64,8 +64,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn handle-new-tcp-packet! [message]
    {:pre  [(bytes? message)]
-    :post [(seqable? %)
-           (every? byte? %)]}
+    :post []}
    (-> message
        (vec)
        (handle-tcp-message!)))
