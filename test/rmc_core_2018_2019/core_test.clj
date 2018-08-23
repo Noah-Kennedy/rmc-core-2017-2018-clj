@@ -23,8 +23,7 @@
       (transmit! arduinoConnection [1 2 3 4 5])
       (Thread/sleep 1000)
       (is (= [1 2 3 4 5] (vec (receive! arduinoConnection))))
-      (is (nil? (receive! arduinoConnection))))
-   (println "arduino done"))
+      (is (nil? (receive! arduinoConnection)))))
 
 (deftest test-common
    (testing "byte?"

@@ -16,13 +16,10 @@
                       writer)))
    Receiver
    (has-new? [this]
-      ;{:post [(boolean? %)]}
       (.available reader))
    (receive! [this]
       {:pre [(not (agent-error writer))
-             (has-new? this)]
-       ;:post [(bytes? %)]
-       }
+             (has-new? this)]}
       (let [availableBytes (.available reader)]
          (if (not (zero? availableBytes))
             (let [bytes (byte-array availableBytes)]

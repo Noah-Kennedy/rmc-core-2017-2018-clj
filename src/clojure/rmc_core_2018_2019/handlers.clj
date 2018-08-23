@@ -63,8 +63,7 @@
 ; Message deconstruction
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn handle-new-tcp-packet! [message]
-   {:pre  [(bytes? message)]
-    :post []}
+   {:pre  [(bytes? message)]}
    (-> message
        (vec)
        (handle-tcp-message!)))
